@@ -1,16 +1,16 @@
 import React from 'react';
 import { Button, Collapse, Label, Input } from 'reactstrap';
 import Slider, { createSliderWithTooltip } from 'rc-slider';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
 
-import CollapseHeader from 'components/CollapseHeader';
-import { CPWrapper } from './Wrapper';
+import { CollapseHeader, ControlPanel } from 'components';
 
 const SliderWithTooltip = createSliderWithTooltip(Slider);
 
-class ControlPanel extends React.PureComponent {
+class Controls extends React.PureComponent {
   state = {
-    shape: true,
-    text: true,
+    pattern: true,
     save: true
   };
 
@@ -18,11 +18,19 @@ class ControlPanel extends React.PureComponent {
 
   render() {
     const { onChange, data } = this.props;
+
     return (
-      <CPWrapper>
+      <ControlPanel>
+        <div className="text-right">
+          <Button color="link" onClick={() => onChange('reload')}>
+            <FontAwesomeIcon icon={faSyncAlt} />
+            Reload
+          </Button>
+        </div>
+
         <div className="block">
-          <CollapseHeader label="Pattern" open={this.state.shape} onClick={() => this.toggle('shape')} />
-          <Collapse isOpen={this.state.shape}>
+          <CollapseHeader label="Pattern" open={this.state.pattern} onClick={() => this.toggle('pattern')} />
+          <Collapse isOpen={this.state.pattern}>
             <div className="controls">
               <div className="control">
                 <Label>Offset X</Label>
@@ -82,7 +90,14 @@ class ControlPanel extends React.PureComponent {
               <div className="control">
                 <Button
                   color="primary"
-                  disabled={!data.name1 || data.name1.trim() === '' || !data.name2 || data.name2.trim() === ''}
+                  disabled={
+                    !data.name1 ||
+                    data.name1.trim() === '' ||
+                    !data.name2 ||
+                    data.name2.trim() === '' ||
+                    !data.name3 ||
+                    data.name3.trim() === ''
+                  }
                   outline
                   block
                   onClick={() => onChange('save')}
@@ -93,9 +108,9 @@ class ControlPanel extends React.PureComponent {
             </div>
           </Collapse>
         </div>
-      </CPWrapper>
+      </ControlPanel>
     );
   }
 }
 
-export default ControlPanel;
+export default Controls;

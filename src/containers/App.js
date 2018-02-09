@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
-// import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet';
 import NotificationSystem from 'react-notification-system';
 
-// import { FONTS } from 'components/FontSelect';
-// import Maker from './Maker';
+import { FONTS } from 'components/FontSelect';
+import Maker from './Maker';
 import Fabric from './Fabric';
 
 class App extends Component {
   render() {
     return (
       <div>
-        {/* <Helmet>
+        <Helmet>
           {FONTS.map(
             ({ name, google }, index) =>
               google && (
@@ -22,10 +22,10 @@ class App extends Component {
                 />
               )
           )}
-        </Helmet> */}
+        </Helmet>
 
-        {/* <Maker /> */}
-        <Fabric />
+        <Maker />
+        {/* <Fabric /> */}
 
         <NotificationSystem
           ref={ref => {

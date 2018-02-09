@@ -66,6 +66,7 @@ class Sprite extends PaperObject {
     this.image = image;
     this.info.width = this.info.width || image.naturalWidth;
     this.info.height = this.info.height || image.naturalHeight;
+    this.ratio = image.naturalHeight / image.naturalWidth;
   };
 
   render = (info, ctx) => {

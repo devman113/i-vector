@@ -2,17 +2,14 @@ import React from 'react';
 import { Button, Collapse, Label, Input } from 'reactstrap';
 import Slider, { createSliderWithTooltip } from 'rc-slider';
 import Textarea from 'react-textarea-autosize';
-
-import FontSelect from 'components/FontSelect';
-import ColorPicker from 'components/ColorPicker';
-import CollapseHeader from 'components/CollapseHeader';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
-import { CPWrapper } from './Wrapper';
+
+import { CollapseHeader, ControlPanel, FontSelect, ColorPicker } from 'components';
 
 const SliderWithTooltip = createSliderWithTooltip(Slider);
 
-class ControlPanel extends React.PureComponent {
+class Controls extends React.PureComponent {
   state = {
     shape: true,
     text: true,
@@ -23,8 +20,9 @@ class ControlPanel extends React.PureComponent {
 
   render() {
     const { onChange, data } = this.props;
+
     return (
-      <CPWrapper>
+      <ControlPanel>
         <div className="text-right">
           <Button color="link" onClick={() => onChange('reload')}>
             <FontAwesomeIcon icon={faSyncAlt} />
@@ -37,9 +35,9 @@ class ControlPanel extends React.PureComponent {
           <Collapse isOpen={this.state.shape}>
             <div className="controls">
               <div className="control">
-                <Label>Move X</Label>
+                <Label>Position X</Label>
                 <SliderWithTooltip
-                  min={1}
+                  min={0}
                   max={data.maxX}
                   value={data.x}
                   tipFormatter={value => `${value}`}
@@ -48,9 +46,9 @@ class ControlPanel extends React.PureComponent {
               </div>
 
               <div className="control">
-                <Label>Move Y</Label>
+                <Label>Position Y</Label>
                 <SliderWithTooltip
-                  min={1}
+                  min={0}
                   max={data.maxY}
                   value={data.y}
                   tipFormatter={value => `${value}`}
@@ -132,9 +130,9 @@ class ControlPanel extends React.PureComponent {
             </div>
           </Collapse>
         </div>
-      </CPWrapper>
+      </ControlPanel>
     );
   }
 }
 
-export default ControlPanel;
+export default Controls;
