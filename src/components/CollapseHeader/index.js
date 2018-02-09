@@ -4,7 +4,7 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faAngleDown from '@fortawesome/fontawesome-free-solid/faAngleDown';
 import faAngleUp from '@fortawesome/fontawesome-free-solid/faAngleUp';
 
-export const Wrapper = styled.a`
+const Wrapper = styled.a`
   display: block;
   padding: 0.75rem 1.25rem;
   cursor: pointer;

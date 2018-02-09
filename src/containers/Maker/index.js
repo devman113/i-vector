@@ -199,7 +199,7 @@ class Fabric extends Component {
 
     const formData = new FormData();
     formData.append('image1', image1);
-    formData.append('filename1', this.state.data.name1);
+    formData.append('name1', this.state.data.name1);
 
     let canvas = document.createElement('canvas');
     canvas.width = this.paper.canvas.width;
@@ -212,7 +212,7 @@ class Fabric extends Component {
     image2 = image2.replace('data:image/png;base64,', '');
 
     formData.append('image2', image2);
-    formData.append('filename2', this.state.data.name2);
+    formData.append('name2', this.state.data.name2);
 
     let url = `./save-images/`;
     if (process.env.NODE_ENV !== 'production') {

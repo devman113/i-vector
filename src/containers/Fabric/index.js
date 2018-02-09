@@ -5,8 +5,10 @@ import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner';
 import axios from 'axios';
 
 import Paper from 'utils/paper';
+import { dataURLtoFile } from 'utils/helper';
 import App from 'containers/App';
 import ImageGroup from 'components/ImageGroup';
+import PopupLoading from 'components/PopupLoading';
 import { IMAGE_GROUPS, DATA } from './constants';
 import ControlPanel from './ControlPanel';
 import Wrapper from './Wrapper';
@@ -83,8 +85,8 @@ class Maker extends Component {
             y: data.py,
             width: data.pSize,
             height: data.pSize / naturalWidth * naturalHeight,
-            render: ctx => {
-              const { info, image } = this.pattern;
+            render: (info, ctx) => {
+              const { image } = this.pattern;
               const { width, height } = info;
               let y = -info.y;
               while (y < canvas.height) {
@@ -140,47 +142,53 @@ class Maker extends Component {
   };
 
   saveImage = () => {
-    this.saving = true;
+    this.setState({ saving: true });
 
     let image1 = this.paper.canvas.toDataURL('png');
-    image1 = image1.replace('data:image/png;base64,', '');
-
-    const formData = new FormData();
-    formData.append('image1', image1);
-    formData.append('filename1', this.state.data.name1);
 
     let canvas = document.createElement('canvas');
     canvas.width = this.paper.canvas.width;
     canvas.height = this.paper.canvas.height;
     let ctx = canvas.getContext('2d');
     this.pattern.render({}, ctx);
-    let image2 = canvas.toDataURL('png');
-    image2 = image2.replace('data:image/png;base64,', '');
+    let image3 = canvas.toDataURL('png');
 
-    formData.append('image2', image2);
-    formData.append('filename2', this.state.data.name2);
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.drawImage(this.paper.overlayImage, 0, 0);
+    let image2 = canvas.toDataURL('png');
+
+    const formData = new FormData();
+    formData.append('file1', dataURLtoFile(image1, this.state.data.name1));
+    formData.append('file2', dataURLtoFile(image2, this.state.data.name2));
+    formData.append('file3', dataURLtoFile(image3, this.state.data.name3));
 
     let url = `./save-images/`;
     if (process.env.NODE_ENV !== 'production') {
       url = `http://localhost/dev/save-images/`;
     }
-    axios.post(url, formData).then(
-      response => {
-        this.saving = false;
-        App.notificaionSystem.addNotification({
-          message: 'Saved Successfully!',
-          position: 'tc',
-          level: 'success'
-        });
-      },
-      error => {
-        console.log(error);
-      }
-    );
+    axios
+      .post(url, formData, {
+        onUploadProgress: progress => {
+          this.setState({ progress: Math.floor(progress.loaded / progress.total * 100) });
+        }
+      })
+      .then(
+        response => {
+          this.setState({ progress: null });
+          App.notificaionSystem.addNotification({
+            message: 'Saved Successfully!',
+            position: 'tc',
+            level: 'success'
+          });
+        },
+        error => {
+          console.log(error);
+        }
+      );
   };
 
   render() {
-    const { data, stageW, stageH } = this.state;
+    const { data, stageW, stageH, progress } = this.state;
 
     return (
       <Wrapper stageW={stageW} stageH={stageH}>
@@ -209,6 +217,8 @@ class Maker extends Component {
             <ImageGroup key={index} group={group} data={data} open={index === 0} onChange={this.onControl} />
           ))}
         </div>
+
+        {progress && <PopupLoading label="Uploading..." progress={progress} />}
       </Wrapper>
     );
   }

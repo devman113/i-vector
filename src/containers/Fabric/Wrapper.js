@@ -9,6 +9,7 @@ export default styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+    min-width: 300px;
 
     #canvas {
       ${props => css`
@@ -20,6 +21,7 @@ export default styled.div`
 
   .image-panel {
     width: 300px;
+    min-width: 300px;
     border-left: 6px outset transparent;
     border-image: linear-gradient(to left, rgba(0, 0, 0, 0.35) 0, rgba(0, 0, 0, 0.15) 50%, transparent 100%) 1 50%;
     overflow-y: auto;
@@ -28,6 +30,7 @@ export default styled.div`
 
 export const CPWrapper = styled.div`
   width: 300px;
+  min-width: 300px;
   border-right: 6px outset transparent;
   border-image: linear-gradient(to right, rgba(0, 0, 0, 0.35) 0, rgba(0, 0, 0, 0.15) 50%, transparent 100%) 1 50%;
   overflow-y: auto;

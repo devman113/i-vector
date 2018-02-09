@@ -21,5 +21,6 @@ export const DATA = {
   pSize: 300,
 
   name1: 'noun.png',
-  name2: 'noun-iso.png'
+  name2: 'noun-iso.png',
+  name3: 'noun-iso-square.png'
 };

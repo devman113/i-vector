@@ -75,6 +75,11 @@ class ControlPanel extends React.PureComponent {
               </div>
 
               <div className="control">
+                <Label>Image Name3</Label>
+                <Input value={data.name3 || ''} onChange={e => onChange('name3', e.target.value)} />
+              </div>
+
+              <div className="control">
                 <Button
                   color="primary"
                   disabled={!data.name1 || data.name1.trim() === '' || !data.name2 || data.name2.trim() === ''}

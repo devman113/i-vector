@@ -7,6 +7,7 @@ const Wrapper = styled.div`
   display: inline-block;
   width: 40px;
   height: 40px;
+
   div {
     width: 100%;
     height: 100%;

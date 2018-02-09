@@ -72,12 +72,12 @@ class Sprite extends PaperObject {
     ctx = ctx || this.ctx;
     if (!ctx || !this.image) return;
 
+    info = Object.assign({}, this.info, info);
+
     if (this.info.render) {
-      this.info.render(ctx);
+      this.info.render(info, ctx);
       return;
     }
-
-    info = Object.assign({}, this.info, info);
 
     const { ancor, x, y, width, height, scaleX, scaleY, rotate, shadow, alpha, operation, pattern } = info;
 
@@ -151,12 +151,13 @@ class Text extends PaperObject {
     ctx = ctx || this.ctx;
     if (!ctx || !this.text) return;
 
+    info = Object.assign({}, this.info, info);
+
     if (this.info.render) {
-      this.info.render(ctx);
+      this.info.render(ctx, info);
       return;
     }
 
-    info = Object.assign({}, this.info, info);
     const { align, x, y, scaleX, scaleY, rotate, shadow, alpha, operation } = info;
 
     ctx.save();
