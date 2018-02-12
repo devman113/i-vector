@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Helmet } from 'react-helmet';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner';
 
@@ -22,24 +21,23 @@ class Fabric extends Component {
     this.paper = new Paper('canvas');
     this.onResizeStage();
 
-    Paper.Sprite.load('./images/shape.svg', sprite => {
+    Paper.Sprite.load(DATA.shapeUrl, sprite => {
       const { x, y, size, fontname, fontsize, textcolor, text } = DATA;
 
       this.shape = this.paper.add(sprite).set({
         ancor: [0.5, 0.5],
         x,
         y,
-        width: size,
-        height: size * sprite.ratio
+        size,
+        pattern: this.pattern
       });
 
       this.text = this.paper.add(new Paper.Text()).set({
-        align: 'center',
+        textAlign: 'center',
         x: this.paper.canvas.width / 2,
         y: this.paper.canvas.height / 2,
-        fontname,
-        fontsize,
-        textcolor
+        font: `${fontsize}px ${fontname}`,
+        fillStyle: textcolor
       });
       this.text.text = text;
     });
@@ -82,10 +80,6 @@ class Fabric extends Component {
               }
             });
 
-            if (this.pattern) {
-              this.updatePatternInfo();
-            }
-
             this.text.set({
               x: naturalWidth / 2,
               y: naturalHeight / 2
@@ -97,18 +91,16 @@ class Fabric extends Component {
           }
 
           case IMAGE_GROUPS[1].folder:
-            if (!this.pattern) {
-              this.pattern = this.paper.add(new Paper.Sprite(), 0).set({ ancor: [0.5, 0.5] });
-            }
-
-            this.pattern.setImage(value.ref);
-            this.updatePatternInfo();
+            this.paper.backgroundImage = value.ref;
             this.paper.renderAll();
             break;
 
           case IMAGE_GROUPS[2].folder:
-            this.shape.set({ pattern: value.ref });
-            this.paper.renderAll();
+            this.pattern = value.ref;
+            if (this.shape) {
+              this.shape.set({ pattern: this.pattern });
+              this.paper.renderAll();
+            }
             break;
 
           case 'x':
@@ -127,10 +119,7 @@ class Fabric extends Component {
 
           case 'size':
             if (this.shape) {
-              this.shape.set({
-                width: value,
-                height: value * this.shape.ratio
-              });
+              this.shape.set({ size: value });
               this.paper.renderAll();
             }
             break;
@@ -144,21 +133,21 @@ class Fabric extends Component {
 
           case 'fontname':
             if (this.text) {
-              this.text.set({ fontname: value });
+              this.text.set({ font: `${data.fontsize}px ${value}` });
               this.paper.renderAll();
             }
             break;
 
           case 'fontsize':
             if (this.text) {
-              this.text.set({ fontsize: value });
+              this.text.set({ font: `${value}px ${data.fontname}` });
               this.paper.renderAll();
             }
             break;
 
           case 'textcolor':
             if (this.text) {
-              this.text.set({ textcolor: value });
+              this.text.set({ fillStyle: value });
               this.paper.renderAll();
             }
             break;
@@ -181,27 +170,18 @@ class Fabric extends Component {
     );
   };
 
-  updatePatternInfo = () => {
-    const { width, height } = this.paper.canvas;
-    this.pattern.set({
-      x: width / 2,
-      y: height / 2,
-      width,
-      height
-    });
-  };
-
   saveImage = () => {
-    let image1 = this.paper.canvas.toDataURL('png');
+    const image1 = this.paper.canvas.toDataURL('png');
 
-    let canvas = document.createElement('canvas');
+    const canvas = document.createElement('canvas');
     canvas.width = this.paper.canvas.width;
     canvas.height = this.paper.canvas.height;
-    let ctx = canvas.getContext('2d');
-    this.pattern.render({}, ctx);
+
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(this.paper.backgroundImage, 0, 0, canvas.width, canvas.height);
     this.shape.render({}, ctx);
     this.text.render({}, ctx);
-    let image2 = canvas.toDataURL('png');
+    const image2 = canvas.toDataURL('png');
 
     helper.uploadImages(
       {
@@ -223,10 +203,6 @@ class Fabric extends Component {
 
     return (
       <DemoContainer>
-        <Helmet>
-          <title>Vector Image - Maker</title>
-        </Helmet>
-
         <Controls data={data} onChange={this.onControl} />
 
         <main

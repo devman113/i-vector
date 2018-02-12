@@ -12,6 +12,8 @@ export const IMAGE_GROUPS = [
 ];
 
 export const DATA = {
+  rulerUrl: './images/ruler.png',
+
   maxPX: 300,
   px: 0,
   maxPY: 300,

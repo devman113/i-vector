@@ -16,6 +16,8 @@ export const IMAGE_GROUPS = [
 ];
 
 export const DATA = {
+  shapeUrl: './images/shape.svg',
+
   maxX: 1200,
   x: 600,
   maxY: 1200,

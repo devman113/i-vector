@@ -35,7 +35,7 @@ export default class Paper {
     }
 
     this.objects.forEach(obj => {
-      obj.render();
+      (obj.info.render || obj.render)();
     });
 
     if (this.overlayImage) {
@@ -50,6 +50,11 @@ class PaperObject {
 
   set = info => {
     Object.assign(this.info, info);
+    const { size } = info;
+    if (size) {
+      this.info.width = size;
+      this.info.height = size * this.ratio;
+    }
     return this;
   };
 }
@@ -69,62 +74,50 @@ class Sprite extends PaperObject {
     this.ratio = image.naturalHeight / image.naturalWidth;
   };
 
+  getPatternedCanvas = pattern => {
+    let canvas = document.createElement('canvas');
+    if (this.ratio < 1) {
+      canvas.width = pattern.naturalWidth;
+      canvas.height = pattern.naturalWidth * this.ratio;
+    } else {
+      canvas.width = pattern.naturalHeight / this.ratio;
+      canvas.height = pattern.naturalHeight;
+    }
+
+    let contenxt = canvas.getContext('2d');
+    contenxt.drawImage(pattern, (canvas.width - pattern.naturalWidth) / 2, (canvas.height - pattern.naturalHeight) / 2);
+
+    contenxt.globalCompositeOperation = 'destination-in';
+    contenxt.drawImage(this.image, 0, 0, canvas.width, canvas.height);
+
+    return canvas;
+  };
+
   render = (info, ctx) => {
     ctx = ctx || this.ctx;
     if (!ctx || !this.image) return;
 
     info = Object.assign({}, this.info, info);
 
-    if (this.info.render) {
-      this.info.render(info, ctx);
-      return;
-    }
-
-    const { ancor, x, y, width, height, scaleX, scaleY, rotate, shadow, alpha, operation, pattern } = info;
+    const { x, y, width, height, scaleX, scaleY, rotate, ancor, pattern } = info;
 
     ctx.save();
 
-    ctx.translate(x, y);
+    Object.assign(ctx, info);
 
-    if (rotate) {
-      ctx.rotate(rotate);
-    }
+    ctx.translate(x, y);
 
     if (scaleX || scaleY) {
       ctx.scale(scaleX || 1, scaleY || 1);
     }
 
-    if (alpha) {
-      ctx.globalAlpha = alpha;
-    }
-
-    if (shadow) {
-      ctx.shadowOffsetX = shadow.offsetX;
-      ctx.shadowOffsetY = shadow.offsetY;
-      ctx.shadowBlur = shadow.blur;
-      ctx.shadowColor = shadow.color;
-    }
-
-    if (operation) {
-      ctx.globalCompositeOperation = operation;
+    if (rotate) {
+      ctx.rotate(rotate);
     }
 
     let obj;
     if (pattern) {
-      let canvas = document.createElement('canvas');
-      canvas.width = this.image.naturalWidth;
-      canvas.height = this.image.naturalHeight;
-
-      let contenxt = canvas.getContext('2d');
-      contenxt.drawImage(this.image, 0, 0);
-
-      const scale = Math.max(canvas.width / pattern.naturalWidth, canvas.height / pattern.naturalHeight);
-      contenxt.scale(scale, scale);
-
-      contenxt.globalCompositeOperation = 'source-in';
-      contenxt.drawImage(pattern, 0, 0);
-
-      obj = canvas;
+      obj = this.getPatternedCanvas(pattern);
     } else {
       obj = this.image;
     }
@@ -148,58 +141,45 @@ Sprite.load = (url, callback) => {
 class Text extends PaperObject {
   text = '';
 
+  constructor() {
+    super();
+    Object.assign(this.info, { textBaseline: 'middle' });
+  }
+
   render = (info, ctx) => {
     ctx = ctx || this.ctx;
     if (!ctx || !this.text) return;
 
     info = Object.assign({}, this.info, info);
 
-    if (this.info.render) {
-      this.info.render(ctx, info);
-      return;
-    }
-
-    const { align, x, y, scaleX, scaleY, rotate, shadow, alpha, operation } = info;
+    const { x, y, scaleX, scaleY, rotate } = info;
 
     ctx.save();
 
-    ctx.translate(x, y);
+    Object.assign(ctx, info);
 
-    if (rotate) {
-      ctx.rotate(rotate);
-    }
+    ctx.translate(x, y);
 
     if (scaleX || scaleY) {
       ctx.scale(scaleX || 1, scaleY || 1);
     }
 
-    if (alpha) {
-      ctx.globalAlpha = alpha;
+    if (rotate) {
+      ctx.rotate(rotate);
     }
 
-    if (shadow) {
-      ctx.shadowOffsetX = shadow.offsetX;
-      ctx.shadowOffsetY = shadow.offsetY;
-      ctx.shadowBlur = shadow.blur;
-      ctx.shadowColor = shadow.color;
-    }
-
-    if (operation) {
-      ctx.globalCompositeOperation = operation;
-    }
-
-    if (align) {
-      ctx.textAlign = align;
-    }
-
-    ctx.font = `${info.fontsize}px ${info.fontname}`;
-    ctx.fillStyle = info.textcolor;
-
+    const fontsize = parseInt(ctx.font, 10);
     const arr = this.text.split('\n');
-    let ty = -arr.length * info.fontsize * 0.42;
+    let ty = 0;
+    if (ctx.textBaseline === 'middle') {
+      ty = -(arr.length - 1) * fontsize * 0.5;
+    } else if (ctx.textBaseline === 'bottom' || ctx.textBaseline === 'alphabetic') {
+      ty = -(arr.length - 1) * fontsize;
+    }
+
     arr.forEach(text => {
       ctx.fillText(text, 0, ty);
-      ty += info.fontsize;
+      ty += fontsize;
     });
 
     ctx.restore();

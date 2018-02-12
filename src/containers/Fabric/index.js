@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Helmet } from 'react-helmet';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner';
 
@@ -21,6 +20,12 @@ class Maker extends Component {
 
     this.paper = new Paper('canvas');
     this.onResizeStage();
+
+    const ruler = new Image();
+    ruler.onload = () => {
+      this.paper.overlayImage = ruler;
+    };
+    ruler.src = DATA.rulerUrl;
   }
 
   componentWillUnmount() {
@@ -43,20 +48,23 @@ class Maker extends Component {
 
         switch (name) {
           case IMAGE_GROUPS[0].folder: {
-            const { naturalWidth, naturalHeight } = value.ref;
-
-            // update stage size
-            canvas.width = naturalWidth;
-            canvas.height = naturalHeight;
+            const image = value.ref;
+            canvas.width = image.naturalWidth;
+            canvas.height = image.naturalHeight;
             this.onResizeStage();
 
-            this.paper.overlayImage = value.ref;
+            if (!this.bg) {
+              this.bg = this.paper.add(new Paper.Sprite());
+            }
+            this.bg.setImage(image);
+            this.bg.set({ width: canvas.width, height: canvas.height });
+
             this.paper.renderAll();
             break;
           }
 
           case IMAGE_GROUPS[1].folder:
-            const { naturalWidth, naturalHeight } = value.ref;
+            const { naturalWidth } = value.ref;
 
             // update control data
             this.setState({
@@ -75,15 +83,17 @@ class Maker extends Component {
                 x: data.px,
                 y: data.py,
                 width: data.pSize,
-                height: data.pSize / naturalWidth * naturalHeight,
+                height: data.pSize / naturalWidth * value.ref.naturalHeight,
                 render: (info, ctx) => {
-                  const { image } = this.pattern;
+                  ctx = ctx || this.pattern.ctx;
+                  info = Object.assign({}, this.pattern.info, info);
                   const { width, height } = info;
+
                   let y = -info.y;
-                  while (y < canvas.height) {
+                  while (y < ctx.canvas.height) {
                     let x = -info.x;
-                    while (x < canvas.width) {
-                      ctx.drawImage(image, x, y, width, height);
+                    while (x < ctx.canvas.width) {
+                      ctx.drawImage(this.pattern.image, x, y, width, height);
                       x += width;
                     }
                     y += height;
@@ -112,10 +122,7 @@ class Maker extends Component {
 
           case 'pSize':
             if (this.pattern) {
-              this.pattern.set({
-                width: value,
-                height: value * this.pattern.ratio
-              });
+              this.pattern.set({ size: value });
               this.paper.renderAll();
             }
             break;
@@ -139,18 +146,23 @@ class Maker extends Component {
   };
 
   saveImage = () => {
-    let image1 = this.paper.canvas.toDataURL('png');
+    const image1 = this.paper.canvas.toDataURL('png');
 
-    let canvas = document.createElement('canvas');
+    const canvas = document.createElement('canvas');
     canvas.width = this.paper.canvas.width;
     canvas.height = this.paper.canvas.height;
-    let ctx = canvas.getContext('2d');
-    this.pattern.render({}, ctx);
-    let image3 = canvas.toDataURL('png');
+    const ctx = canvas.getContext('2d');
 
+    this.pattern.info.render({}, ctx);
     ctx.globalCompositeOperation = 'destination-out';
-    ctx.drawImage(this.paper.overlayImage, 0, 0);
-    let image2 = canvas.toDataURL('png');
+    ctx.drawImage(this.bg.image, 0, 0);
+    const image2 = canvas.toDataURL('png');
+
+    ctx.globalCompositeOperation = 'source-over';
+    this.pattern.info.render({}, ctx);
+    ctx.globalCompositeOperation = 'destination-in';
+    ctx.fillRect((canvas.width - 1500) / 2, (canvas.height - 1500) / 2, 1500, 1500);
+    const image3 = canvas.toDataURL('png');
 
     helper.uploadImages(
       {
@@ -173,10 +185,6 @@ class Maker extends Component {
 
     return (
       <DemoContainer>
-        <Helmet>
-          <title>Vector Image - Fabric</title>
-        </Helmet>
-
         <Controls data={data} onChange={this.onControl} />
 
         <main
