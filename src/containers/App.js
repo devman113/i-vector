@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Helmet } from 'react-helmet';
 import NotificationSystem from 'react-notification-system';
 
@@ -15,7 +15,7 @@ const pages = {
   wood: <Wood />
 };
 
-class App extends Component {
+class App extends React.Component {
   render() {
     const pageName = (process.env.PUBLIC_URL || process.env.REACT_APP_PUBLIC_URL).replace('/', '');
     const title = pageName.charAt(0).toUpperCase() + pageName.slice(1);

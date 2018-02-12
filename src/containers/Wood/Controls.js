@@ -1,12 +1,7 @@
 import React from 'react';
 import { Button, Collapse, Label, Input } from 'reactstrap';
-import Slider, { createSliderWithTooltip } from 'rc-slider';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
 
 import { CollapseHeader, ControlPanel } from 'components';
-
-const SliderWithTooltip = createSliderWithTooltip(Slider);
 
 class Controls extends React.PureComponent {
   state = {
@@ -33,6 +28,18 @@ class Controls extends React.PureComponent {
               <div className="control">
                 <Label>Image Name2</Label>
                 <Input value={data.name2 || ''} onChange={e => onChange('name2', e.target.value)} />
+              </div>
+
+              <div className="control">
+                <Button
+                  color="primary"
+                  disabled={!data.name1 || data.name1.trim() === '' || !data.name2 || data.name2.trim() === ''}
+                  outline
+                  block
+                  onClick={() => onChange('preview')}
+                >
+                  Preview
+                </Button>
               </div>
 
               <div className="control">

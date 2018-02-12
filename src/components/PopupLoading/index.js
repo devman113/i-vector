@@ -8,6 +8,7 @@ const Wrapper = styled(Modal)`
   align-items: center;
   height: 100%;
   margin: auto !important;
+  transform: none !important;
 
   .modal-content {
     width: auto;
@@ -24,7 +25,7 @@ const Wrapper = styled(Modal)`
 
 export default ({ label, progress }) => {
   return (
-    <Wrapper isOpen fade={false}>
+    <Wrapper isOpen>
       {progress && (
         <Progress animated value={progress}>
           {progress}%

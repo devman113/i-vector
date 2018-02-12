@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner';
 
@@ -8,7 +8,7 @@ import * as helper from 'utils/helper';
 import Controls from './Controls';
 import { IMAGE_GROUPS, DATA } from './constants';
 
-class Maker extends Component {
+class Maker extends React.Component {
   state = {
     data: {}
   };

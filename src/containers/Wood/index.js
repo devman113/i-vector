@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner';
 
@@ -6,9 +6,10 @@ import { DemoContainer, ImagePanel, ImageGroup, PopupLoading } from 'components'
 import Paper from 'utils/paper';
 import * as helper from 'utils/helper';
 import Controls from './Controls';
+import Preview from './Preview';
 import { IMAGE_GROUPS, DATA } from './constants';
 
-class Wood extends Component {
+class Wood extends React.Component {
   state = {
     data: {}
   };
@@ -105,6 +106,10 @@ class Wood extends Component {
             this.isolated = value.ref;
             break;
 
+          case 'preview':
+            this.setState({ preview: true });
+            break;
+
           case 'save':
             this.saveImage();
             break;
@@ -119,26 +124,7 @@ class Wood extends Component {
     const image1 = this.paper.canvas.toDataURL('png');
 
     const canvas = document.createElement('canvas');
-    canvas.width = this.pattern.naturalWidth;
-    canvas.height = this.pattern.naturalHeight;
-
-    const ctx = canvas.getContext('2d');
-    const { width, height } = canvas;
-
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, width, height);
-
-    this.watermark.render({ x: width, y: height }, ctx);
-
-    ctx.shadowOffsetX = 5;
-    ctx.shadowOffsetY = 5;
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = DATA.shadowColor;
-
-    const obj = this.shape.getPatternedCanvas(this.isolated);
-    const w = width * 0.8;
-    const h = w * this.shape.ratio;
-    ctx.drawImage(obj, (width - w) / 2, (height - h) / 2, w, h);
+    this.renderPreview(canvas);
     let image2 = canvas.toDataURL('png');
 
     helper.uploadImages(
@@ -156,8 +142,37 @@ class Wood extends Component {
     );
   };
 
+  closePreview = () => this.setState({ preview: false });
+
+  renderPreview = canvas => {
+    canvas.width = this.pattern.naturalWidth;
+    canvas.height = this.pattern.naturalHeight;
+
+    const ctx = canvas.getContext('2d');
+    const { width, height } = canvas;
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
+
+    this.watermark.render({ x: width, y: height }, ctx);
+
+    const { data } = this.state;
+    const w = width * 0.8;
+    const h = w * this.shape.ratio;
+    const d = w / data.size;
+
+    ctx.shadowOffsetX = data.shadowOffsetX * d;
+    ctx.shadowOffsetY = data.shadowOffsetY * d;
+    ctx.shadowBlur = data.shadowBlur * d;
+    ctx.shadowColor = DATA.shadowColor;
+
+    const obj = this.shape.getPatternedCanvas(this.isolated);
+
+    ctx.drawImage(obj, (width - w) / 2, (height - h) / 2, w, h);
+  };
+
   render() {
-    const { data, stageW, stageH, label, progress } = this.state;
+    const { data, stageW, stageH, label, progress, preview } = this.state;
 
     return (
       <DemoContainer>
@@ -183,6 +198,7 @@ class Wood extends Component {
           ))}
         </ImagePanel>
 
+        {preview && <Preview render={this.renderPreview} onClose={this.closePreview} />}
         {progress && <PopupLoading label={label} progress={progress} />}
       </DemoContainer>
     );

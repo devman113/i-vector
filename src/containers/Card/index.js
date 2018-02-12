@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner';
 
@@ -8,7 +8,7 @@ import * as helper from 'utils/helper';
 import Controls from './Controls';
 import { IMAGE_GROUPS, DATA } from './constants';
 
-class Card extends Component {
+class Card extends React.Component {
   state = {
     data: {}
   };
@@ -91,6 +91,7 @@ class Card extends Component {
           case 'y':
             if (this.shape) {
               this.shape.set({ y: value });
+              this.updateShapeY();
               this.paper.renderAll();
             }
             break;

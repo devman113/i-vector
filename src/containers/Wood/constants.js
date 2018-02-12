@@ -21,9 +21,9 @@ export const DATA = {
   shapeUrl: './images/shape.svg',
 
   size: 448,
-  shadowOffsetX: 3,
-  shadowOffsetY: 3,
-  shadowBlur: 6,
+  shadowOffsetX: 5,
+  shadowOffsetY: 5,
+  shadowBlur: 10,
   shadowColor: 'rgba(0, 0, 0, 0.5)',
 
   name1: 'noun.png',

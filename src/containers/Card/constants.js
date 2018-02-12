@@ -33,7 +33,7 @@ export const DATA = {
   fontsize: 95,
   textcolor: '#000000',
   direction: 'top',
-  maxPadding: 100,
+  maxPadding: 480,
   padding: 50,
 
   name1: 'noun.png',
